@@ -1,1 +1,20 @@
+# Environment
 .env
+.env.*
+
+# Keep example environment files
+!.env.example
+
+# Maven
+target/
+
+# IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
