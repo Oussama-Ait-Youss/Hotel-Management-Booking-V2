@@ -13,8 +13,6 @@ services:
     volumes:
       # Volume pour la persistance des données
       - postgres_data:/var/lib/postgresql/data
-      # Volume pour l'initialisation automatique (Optionnel : si vous avez un script SQL)
-      # - ./db-init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
