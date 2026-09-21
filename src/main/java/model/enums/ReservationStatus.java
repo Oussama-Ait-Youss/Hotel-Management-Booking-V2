@@ -1,4 +1,4 @@
-package java.model.enums;
+package model.enums;
 
 public enum ReservationStatus {
     PENDING,

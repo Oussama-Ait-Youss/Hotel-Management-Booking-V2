@@ -1,6 +1,6 @@
-package java.model;
+package model;
 
-import java.model.enums.UserRole;
+import model.enums.UserRole;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
