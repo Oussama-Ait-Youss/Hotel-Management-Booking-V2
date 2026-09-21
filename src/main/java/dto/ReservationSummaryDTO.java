@@ -2,7 +2,7 @@ package dto;
 
 
 import java.time.LocalDate;
-import java.model.enums.ReservationStatus;
+import model.enums.ReservationStatus;
 import java.math.BigDecimal;
 
 

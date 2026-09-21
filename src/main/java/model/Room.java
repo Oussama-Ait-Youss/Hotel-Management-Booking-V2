@@ -1,7 +1,7 @@
 package model;
 
-import java.model.enums.RoomStatus;
-import java.model.enums.RoomType;
+import model.enums.RoomStatus;
+import model.enums.RoomType;
 
 import java.math.BigDecimal;
 
