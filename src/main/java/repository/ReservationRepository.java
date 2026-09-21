@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import dto.ReservationSummaryDTO;
 import model.Reservation;
-
+import model.enums.ReservationStatus;
 
 
 public interface ReservationRepository {
@@ -21,5 +21,6 @@ public interface ReservationRepository {
     );
     public Reservation save(Reservation reservation);
     void update(Reservation reservation);
-    void delete(Long id);
+    void deleteById(Long id);
+    List<Reservation> findByStatus(ReservationStatus status);
 }

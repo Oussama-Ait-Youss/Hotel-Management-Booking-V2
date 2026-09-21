@@ -1,6 +1,6 @@
 package model;
 
-import java.model.enums.ReservationStatus;
+import model.enums.ReservationStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

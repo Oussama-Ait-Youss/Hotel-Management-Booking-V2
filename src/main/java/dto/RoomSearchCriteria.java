@@ -1,5 +1,5 @@
 package dto;
-import java.model.enums.RoomType;
+import model.enums.RoomType;
 import java.time.LocalDate;
 
 public class RoomSearchCriteria {

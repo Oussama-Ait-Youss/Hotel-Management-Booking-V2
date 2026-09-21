@@ -2,7 +2,7 @@ package dto;
 
 
 import java.math.BigDecimal;
-import java.model.enums.RoomType;
+import model.enums.RoomType;
 
 
 

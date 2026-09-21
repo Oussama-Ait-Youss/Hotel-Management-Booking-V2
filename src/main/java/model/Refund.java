@@ -1,6 +1,6 @@
 package model;
 
-import java.model.enums.RefundStatus;
+import model.enums.RefundStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

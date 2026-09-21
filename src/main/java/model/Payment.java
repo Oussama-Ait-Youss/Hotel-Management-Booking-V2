@@ -1,7 +1,7 @@
 package model;
 
-import java.model.enums.PaymentMethod;
-import java.model.enums.PaymentStatus;
+import model.enums.PaymentMethod;
+import model.enums.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
