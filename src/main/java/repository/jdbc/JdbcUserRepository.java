@@ -6,10 +6,10 @@ import model.enums.UserRole;
 import org.w3c.dom.CDATASection;
 import repository.UserRepository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.swing.text.html.Option;
+import javax.xml.transform.Result;
+import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,6 @@ public class JdbcUserRepository implements UserRepository {
     public JdbcUserRepository(){
         this.databaseConnection = DatabaseConnection.getInstance();
     }
-
 
     @Override
     public Optional<User> findById(Long id) {
@@ -537,5 +536,132 @@ public class JdbcUserRepository implements UserRepository {
             }
         }
     }
+
+//    public Optional<User> findById(Long id){
+//        //where is the connection?
+//        Connection connection = null;
+//        PreparedStatement preparedStatement = null;
+//
+//        try {
+//            connection = databaseConnection.getConnection();
+//            String sql = "SELECT * FROM users WHERE id = ?";
+//            preparedStatement = connection.prepareStatement(sql);
+//            preparedStatement.setLong(1,id);
+//            ResultSet result = preparedStatement.executeQuery();
+//
+//            if (result.next()) {
+//                Long Userid  = result.getLong("id");
+//                String first_name = result.getString("first_name");
+//                String last_name = result.getString("last_name");
+//                String email = result.getString("email");
+//                String password_hash = result.getString("password_hash");
+//                String salt = result.getString("salt");
+//                UserRole role = UserRole.valueOf(result.getString("role"));
+//                LocalDateTime created_at = result.getTimestamp("created_at").toLocalDateTime();
+//
+//                User user = new User(Userid,first_name,last_name,email,password_hash,salt,role,created_at);
+//                return Optional.of(user);
+//            }
+//            return Optional.empty();
+//
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+//        //where is the sql query find user where id = id?
+//        //where is the prepareStatment?
+//        //where is the execution of the query?
+//        //where is the exception handlling?
+//    }
+//    public Optional<User> findByEmail(String email){
+//        Connection connection = null;
+//        PreparedStatement preparedStatement = null;
+//        String sql = "SELECT * FROM users WHERE email = ?";
+//        try {
+//            connection = databaseConnection.getConnection();
+//            preparedStatement = connection.prepareStatement(sql);
+//            preparedStatement.setString(1,email);
+//            ResultSet result = preparedStatement.executeQuery();
+//            if (result.next()) {
+//                Long Userid  = result.getLong("id");
+//                String first_name = result.getString("first_name");
+//                String last_name = result.getString("last_name");
+//                String Email = result.getString("email");
+//                String password_hash = result.getString("password_hash");
+//                String salt = result.getString("salt");
+//                UserRole role = UserRole.valueOf(result.getString("role"));
+//                LocalDateTime created_at = result.getTimestamp("created_at").toLocalDateTime();
+//
+//                User user = new User(Userid,first_name,last_name,Email,password_hash,salt,role,created_at);
+//                return Optional.of(user);
+//            }
+//            return Optional.empty();
+//
+//
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//    }
+//    @Override
+//    public List<User> findAll() {
+//
+//        List<User> users = new ArrayList<>();
+//
+//        Connection connection = null;
+//
+//        try {
+//            connection = databaseConnection.getConnection();
+//
+//            String sql = "SELECT * FROM users";
+//
+//            Statement stmt = connection.createStatement();
+//
+//            ResultSet result = stmt.executeQuery(sql);
+//
+//            while (result.next()) {
+//
+//                Long userId = result.getLong("id");
+//                String firstName = result.getString("first_name");
+//                String lastName = result.getString("last_name");
+//                String email = result.getString("email");
+//                String passwordHash = result.getString("password_hash");
+//                String salt = result.getString("salt");
+//
+//                UserRole role =
+//                        UserRole.valueOf(result.getString("role"));
+//
+//                LocalDateTime createdAt =
+//                        result.getTimestamp("created_at")
+//                                .toLocalDateTime();
+//
+//                User user = new User(
+//                        userId,
+//                        firstName,
+//                        lastName,
+//                        email,
+//                        passwordHash,
+//                        salt,
+//                        role,
+//                        createdAt
+//                );
+//
+//                users.add(user);
+//            }
+//
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//
+//        } finally {
+//            try {
+//                if (connection != null) {
+//                    connection.close();
+//                }
+//            } catch (SQLException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//
+//        return users;
+//    }
 
 }
