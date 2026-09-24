@@ -340,12 +340,49 @@ public class JdbcRoomRepository implements RoomRepository {
     }
 
     @Override
-    public List<AvailableRoomDTO> findAvailableRooms(
-            RoomSearchCriteria criteria
-    ) {
+    public List<AvailableRoomDTO> findAvailableRooms(RoomSearchCriteria criteria) {
+        String sql = """
+            SELECT id, room_number, type, capacity, base_price, description
+            FROM rooms
+            WHERE status = 'AVAILABLE'
+            AND id NOT IN (
+                SELECT room_id FROM reservations 
+                WHERE status IN ('PENDING', 'CONFIRMED')
+                AND check_in < ? AND check_out > ?
+            )
+            """;
 
-        // We will implement this method after the basic CRUD methods.
-        return new ArrayList<>();
+        List<AvailableRoomDTO> availableRooms = new ArrayList<>();
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = databaseConnection.getConnection();
+            statement = connection.prepareStatement(sql);
+
+            // Si checkOut est avant le checkIn existant, pas de chevauchement. Donc on cherche les chevauchements.
+            statement.setObject(1, criteria.getCheckOut());
+            statement.setObject(2, criteria.getCheckIn());
+
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                AvailableRoomDTO dto = new AvailableRoomDTO();
+                dto.setRoomId(resultSet.getLong("id"));
+                dto.setRoomNumber(resultSet.getString("room_number"));
+                dto.setRoomType(RoomType.valueOf(resultSet.getString("type")));
+                dto.setBasePrice(resultSet.getBigDecimal("base_price"));
+                availableRooms.add(dto);
+            }
+            return availableRooms;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la recherche des chambres disponibles", e);
+        } finally {
+            // ... (gardez votre bloc finally habituel de fermeture de connexion)
+            try { if(resultSet!=null) resultSet.close(); if(statement!=null) statement.close(); if(connection!=null) connection.close(); } catch(Exception e){}
+        }
     }
 
     @Override

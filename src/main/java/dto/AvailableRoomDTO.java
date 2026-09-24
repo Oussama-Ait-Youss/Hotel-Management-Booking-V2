@@ -1,39 +1,38 @@
 package dto;
 
-
 import java.math.BigDecimal;
 import model.enums.RoomType;
 
 public class AvailableRoomDTO {
-    private Long id;
+
+    private Long roomId;
     private String roomNumber;
-    private RoomType type;
+    private RoomType roomType;
     private Integer capacity;
-    private BigDecimal pricePerNight;
+    private BigDecimal basePrice;
 
+    public AvailableRoomDTO() {}
 
-
-    public AvailableRoomDTO(){}
     public AvailableRoomDTO(
-            Long id,
+            Long roomId,
             String roomNumber,
-            RoomType type,
+            RoomType roomType,
             Integer capacity,
-            BigDecimal pricePerNight
-    ){
-        this.id = id;
+            BigDecimal basePrice
+    ) {
+        this.roomId = roomId;
         this.roomNumber = roomNumber;
-        this.type = type;
+        this.roomType = roomType;
         this.capacity = capacity;
-        this.pricePerNight = pricePerNight;
+        this.basePrice = basePrice;
     }
 
-    public Long getId() {
-        return id;
+    public Long getRoomId() {
+        return roomId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
     }
 
     public String getRoomNumber() {
@@ -44,12 +43,12 @@ public class AvailableRoomDTO {
         this.roomNumber = roomNumber;
     }
 
-    public RoomType getType() {
-        return type;
+    public RoomType getRoomType() {
+        return roomType;
     }
 
-    public void setType(RoomType type) {
-        this.type = type;
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
     }
 
     public Integer getCapacity() {
@@ -60,11 +59,11 @@ public class AvailableRoomDTO {
         this.capacity = capacity;
     }
 
-    public BigDecimal getPricePerNight() {
-        return pricePerNight;
+    public BigDecimal getBasePrice() {
+        return basePrice;
     }
 
-    public void setPricePerNight(BigDecimal pricePerNight) {
-        this.pricePerNight = pricePerNight;
+    public void setBasePrice(BigDecimal basePrice) {
+        this.basePrice = basePrice;
     }
 }
