@@ -6,6 +6,7 @@ import model.Reservation;
 import model.enums.PaymentStatus;
 import model.enums.RefundStatus;
 import model.enums.ReservationStatus;
+import policy.DefaultRefundPolicy;
 import repository.PaymentRepository;
 import repository.RefundRepository;
 import repository.ReservationRepository;
@@ -26,8 +27,8 @@ public class RefundService {
     public RefundService(
             RefundRepository refundRepository,
             PaymentRepository paymentRepository,
-            ReservationRepository reservationRepository
-    ) {
+            ReservationRepository reservationRepository,
+            DefaultRefundPolicy refundPolicy) {
         this.refundRepository = refundRepository;
         this.paymentRepository = paymentRepository;
         this.reservationRepository = reservationRepository;

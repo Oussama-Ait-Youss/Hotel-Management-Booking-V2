@@ -1,6 +1,9 @@
 import dto.AvailableRoomDTO;
 import dto.ReservationSummaryDTO;
 import dto.RoomSearchCriteria;
+import model.Invoice;
+import model.Payment;
+import model.Refund;
 import model.Reservation;
 import model.Room;
 import model.User;
@@ -12,6 +15,7 @@ import model.enums.UserRole;
 
 import repository.jdbc.JdbcInvoiceRepository;
 import repository.jdbc.JdbcPaymentRepository;
+import repository.jdbc.JdbcRefundRepository;
 import repository.jdbc.JdbcReservationRepository;
 import repository.jdbc.JdbcRoomRepository;
 import repository.jdbc.JdbcUserRepository;
@@ -21,10 +25,12 @@ import service.BookingTransactionService;
 import service.InvoiceService;
 import service.PasswordService;
 import service.PaymentService;
+import service.RefundService;
 import service.ReservationService;
 import service.RoomService;
 import service.UserService;
 import policy.DynamicPricingStrategy;
+import policy.DefaultRefundPolicy;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -44,6 +50,7 @@ public class Main {
     private static final JdbcReservationRepository reservationRepository = new JdbcReservationRepository();
     private static final JdbcPaymentRepository paymentRepository = new JdbcPaymentRepository();
     private static final JdbcInvoiceRepository invoiceRepository = new JdbcInvoiceRepository();
+    private static final JdbcRefundRepository refundRepository = new JdbcRefundRepository();
 
     // =========================================================
     // SERVICES & POLICIES
@@ -55,6 +62,9 @@ public class Main {
     private static final ReservationService reservationService = new ReservationService(reservationRepository, roomRepository, userRepository);
     private static final PaymentService paymentService = new PaymentService(paymentRepository, reservationRepository);
     private static final InvoiceService invoiceService = new InvoiceService(invoiceRepository, paymentRepository);
+
+    private static final DefaultRefundPolicy refundPolicy = new DefaultRefundPolicy();
+    private static final RefundService refundService = new RefundService(refundRepository, paymentRepository, reservationRepository, refundPolicy);
 
     private static final DynamicPricingStrategy pricingStrategy = new DynamicPricingStrategy();
     private static final BookingTransactionService bookingTransactionService = new BookingTransactionService();
@@ -313,7 +323,9 @@ public class Main {
         System.out.println("1. View Available Rooms");
         System.out.println("2. Make a Reservation");
         System.out.println("3. My Reservations");
-        System.out.println("4. Logout");
+        System.out.println("4. Cancel a Reservation");
+        System.out.println("5. My Invoices");
+        System.out.println("6. Logout");
         System.out.println("====================================================");
 
         int choice = readInt("Choose an option: ");
@@ -321,7 +333,9 @@ public class Main {
             case 1 -> searchAvailableRooms();
             case 2 -> makeReservation();
             case 3 -> viewMyReservations();
-            case 4 -> logout();
+            case 4 -> cancelReservation();
+            case 5 -> viewMyInvoices();
+            case 6 -> logout();
             default -> System.out.println("\nInvalid option.");
         }
     }
@@ -405,6 +419,73 @@ public class Main {
         for (ReservationSummaryDTO res : myReservations) {
             System.out.printf("Res ID: %d | Room: %s | %s to %s | Status: %s | Total: %s MAD%n",
                     res.getReservationId(), res.getRoomNumber(), res.getCheckIn(), res.getCheckOut(), res.getStatus(), res.getTotalAmount());
+        }
+    }
+
+    private static void cancelReservation() {
+        System.out.println("\n--- CANCEL A RESERVATION ---");
+        List<ReservationSummaryDTO> myReservations = reservationRepository.findByUserId(loggedInUser.getId());
+
+        if (myReservations.isEmpty()) {
+            System.out.println("You have no reservations to cancel.");
+            return;
+        }
+
+        viewMyReservations();
+        long resId = readLong("\nEnter Reservation ID to cancel (or 0 to abort): ");
+        if (resId == 0) return;
+
+        // Verify the reservation belongs to the logged-in client
+        boolean ownsReservation = myReservations.stream().anyMatch(r -> r.getReservationId() == resId);
+        if (!ownsReservation) {
+            System.out.println("Invalid Reservation ID or you don't have permission.");
+            return;
+        }
+
+        try {
+            // 1. Cancel the reservation
+            reservationService.cancel(resId);
+            System.out.println(" Reservation cancelled successfully.");
+
+            // 2. If a payment exists, process the refund (Strategy Pattern)
+            Optional<Payment> paymentOpt = paymentService.findByReservationId(resId);
+            if (paymentOpt.isPresent() && paymentOpt.get().getStatus() == model.enums.PaymentStatus.COMPLETED) {
+                Refund refund = refundService.createRefund(paymentOpt.get().getId());
+                System.out.println(" Refund processed! Amount to be refunded: " + refund.getAmount() + " MAD.");
+                System.out.println("Reason: " + refund.getReason());
+            }
+        } catch (Exception e) {
+            System.out.println(" Error cancelling reservation: " + e.getMessage());
+        }
+    }
+
+    private static void viewMyInvoices() {
+        System.out.println("\n--- MY INVOICES ---");
+        List<ReservationSummaryDTO> myReservations = reservationRepository.findByUserId(loggedInUser.getId());
+        boolean hasInvoices = false;
+
+        for (ReservationSummaryDTO res : myReservations) {
+            Optional<Payment> payOpt = paymentService.findByReservationId(res.getReservationId());
+            if (payOpt.isPresent()) {
+                Optional<Invoice> invOpt = invoiceService.findByPaymentId(payOpt.get().getId());
+                if (invOpt.isPresent()) {
+                    Invoice inv = invOpt.get();
+                    hasInvoices = true;
+                    System.out.println("-------------------------------------------------");
+                    System.out.println("Invoice N°  : " + inv.getInvoiceNumber());
+                    System.out.println("Date        : " + inv.getIssuedAt());
+                    System.out.println("Room N°     : " + res.getRoomNumber());
+                    System.out.println("Stay Dates  : " + res.getCheckIn() + " to " + res.getCheckOut());
+                    System.out.println("Subtotal HT : " + inv.getSubtotalHt() + " MAD");
+                    System.out.println("Tax (20%)   : " + inv.getTaxAmount() + " MAD");
+                    System.out.println("Total TTC   : " + inv.getTotalTtc() + " MAD");
+                    System.out.println("-------------------------------------------------");
+                }
+            }
+        }
+
+        if (!hasInvoices) {
+            System.out.println("You have no invoices yet. Invoices are generated after completed payments.");
         }
     }
 
